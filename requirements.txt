@@ -21,3 +21,4 @@ prometheus-client==0.20.0
 pytest==8.2.0
 pytest-asyncio==0.23.7
 huggingface_hub>=0.23.0
+bcrypt==4.0.1
