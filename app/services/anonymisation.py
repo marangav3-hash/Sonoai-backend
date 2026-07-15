@@ -50,7 +50,11 @@ def anonymise_dicom(input_path: Path, output_path: Path) -> Tuple[str, str]:
     Returns (anon_study_uid, anon_series_uid).
     """
     log.info("anonymising_dicom", input=str(input_path))
-    ds = pydicom.dcmread(str(input_path))
+    try:
+        ds = pydicom.dcmread(str(input_path), force=True)
+    except Exception as e:
+        log.error("dicom_read_failed", input=str(input_path), error=str(e))
+        raise ValueError(f"Could not read DICOM file: {e}")
 
     # Remove identifying tags
     for tag in REMOVE_TAGS:

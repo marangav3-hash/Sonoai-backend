@@ -129,7 +129,11 @@ async def upload_scan(
 
     # Anonymise immediately
     anon_path = Path(f"/tmp/anon_{scan_id}.dcm")
-    anon_study_uid, _ = anonymise_dicom(raw_path, anon_path)
+    try:
+        anon_study_uid, _ = anonymise_dicom(raw_path, anon_path)
+    except Exception as e:
+        raw_path.unlink(missing_ok=True)
+        raise HTTPException(status_code=400, detail=f"Invalid DICOM file: {e}")
     raw_path.unlink(missing_ok=True)
 
     # Create scan record
