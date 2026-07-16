@@ -75,7 +75,11 @@ PREPROCESS = T.Compose([
 
 def dicom_to_tensor(dicom_path: Path) -> torch.Tensor:
     """Convert a DICOM file to a normalised tensor ready for inference."""
-    ds = pydicom.dcmread(str(dicom_path))
+    ds = pydicom.dcmread(str(dicom_path), force=True)
+    if not hasattr(ds, "file_meta") or "TransferSyntaxUID" not in ds.file_meta:
+        from pydicom.uid import ImplicitVRLittleEndian
+        ds.file_meta = getattr(ds, "file_meta", None) or type(ds).file_meta.__class__()
+        ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
     arr = ds.pixel_array.astype(np.float32)
 
     # Normalise to 0–255
