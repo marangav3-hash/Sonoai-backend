@@ -61,18 +61,30 @@ def anonymise_dicom(input_path: Path, output_path: Path) -> Tuple[str, str]:
         if tag in ds:
             del ds[tag]
 
-    # Replace with anonymised values
-    original_study_uid  = str(ds.get((0x0020, 0x000D), {}).value or uuid.uuid4())
-    original_series_uid = str(ds.get((0x0020, 0x000E), {}).value or uuid.uuid4())
-    original_sop_uid    = str(ds.get((0x0008, 0x0018), {}).value or uuid.uuid4())
+   # Replace with anonymised values
+    def _get_uid(tag):
+        elem = ds.get(tag)
+        if elem is not None and elem.value:
+            return str(elem.value)
+        return str(uuid.uuid4())
+
+    original_study_uid  = _get_uid((0x0020, 0x000D))
+    original_series_uid = _get_uid((0x0020, 0x000E))
+    original_sop_uid    = _get_uid((0x0008, 0x0018))
 
     anon_study_uid  = _new_uid(original_study_uid)
     anon_series_uid = _new_uid(original_series_uid)
     anon_sop_uid    = _new_uid(original_sop_uid)
 
-    ds[0x0020, 0x000D].value = anon_study_uid
-    ds[0x0020, 0x000E].value = anon_series_uid
-    ds[0x0008, 0x0018].value = anon_sop_uid
+    def _set_uid(tag, value):
+        if tag in ds:
+            ds[tag].value = value
+        else:
+            ds.add_new(tag, "UI", value)
+
+    _set_uid((0x0020, 0x000D), anon_study_uid)
+    _set_uid((0x0020, 0x000E), anon_series_uid)
+    _set_uid((0x0008, 0x0018), anon_sop_uid)
 
     for tag, value in REPLACE_TAGS.items():
         if tag in ds and value is not None:
