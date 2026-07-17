@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     ORTHANC_URL: str = "http://localhost:8042"
     ORTHANC_USER: str = "orthanc"
     ORTHANC_PASSWORD: str = "orthanc"
+    ORTHANC_POLL_INTERVAL_SECONDS: int = 30
+    ORTHANC_DEFAULT_FACILITY_ID: str = "6f12c8f5-df4a-4f23-8669-0d4950b92b63"
 
     # JWT
     JWT_ALGORITHM: str = "HS256"
