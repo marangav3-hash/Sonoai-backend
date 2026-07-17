@@ -6,6 +6,8 @@ import structlog
 from app.api.v1.routes import router
 from app.core.config import get_settings
 from app.services.inference import engine
+from app.services.orthanc_poller import poller_loop
+import asyncio
 
 log = structlog.get_logger()
 settings = get_settings()
@@ -13,12 +15,12 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # ── Startup ───────────────────────────────────────────────────────────────
     log.info("sonoai_starting", env=settings.APP_ENV)
     engine.load_models()
     log.info("sonoai_ready")
+    poller_task = asyncio.create_task(poller_loop())
     yield
-    # ── Shutdown ──────────────────────────────────────────────────────────────
+    poller_task.cancel()
     log.info("sonoai_shutting_down")
 
 
