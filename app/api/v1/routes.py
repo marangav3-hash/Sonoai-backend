@@ -25,7 +25,6 @@ async def health():
     return {
         "status": "ok",
         "orthanc": "connected" if orthanc_ok else "unreachable",
-        "orthanc_url_debug": orthanc.base,
         "models_loaded": engine._loaded,
         "version": "1.0.0",
     }
